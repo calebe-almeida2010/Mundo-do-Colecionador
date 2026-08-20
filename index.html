@@ -3,121 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collector's Hub | Loja Geek & Colecionáveis</title>
+    <title>Collector's Hub | Loja Geek</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Arquivo JavaScript Externo -->
     <script src="script.js" defer></script>
 </head>
 <body>
 
-<!-- Overlay de fundo ao abrir o menu -->
-<div class="menu-overlay" id="menuOverlay"></div>
+    <div class="menu-overlay" id="menuOverlay"></div>
 
-<header>
-    <!-- Botão Hambúrguer -->
-    <button class="hamburger-btn" id="menuToggle" aria-label="Abrir Menu" aria-expanded="false" aria-controls="sidebar">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <header>
+        <button class="hamburger-btn" id="menuToggle" aria-label="Abrir Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-    <div class="logo">
-        <a href="index.html">
-            <img src="imagens/Logo.png" alt="logo Collector's Hub">
-        </a>
+        <div class="logo">
+            <a href="#" id="logoLink">
+                <img src="imagens/Logo.png" alt="Collector's Hub Logo">
+            </a>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn" id="btnIrCarrinho">
+                🛒 <span>Carrinho</span>
+                <span id="cartCountBadge" class="badge">0</span>
+            </button>
+            <button class="letra_botao_cadas" id="btnIrCadastro" title="Cadastro / Login">👤</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside id="sidebar">
+            <div class="aside-header">
+                <h2>Categorias</h2>
+                <button class="close-btn" id="menuClose">&times;</button>
+            </div>
+            <ul>
+                <li><a class="nav-link" href="#" data-categoria="todos">🏠 Todos os Produtos</a></li>
+                <li><a class="nav-link" href="#" data-categoria="canecas">☕ Canecas</a></li>
+                <li><a class="nav-link" href="#" data-categoria="ac">🦸 Action Figures</a></li>
+                <li><a class="nav-link" href="#" data-categoria="quadros">🖼️ Quadros</a></li>
+                <li><a class="nav-link" href="#" data-categoria="mangas">📚 Mangás</a></li>
+                <li><a class="nav-link" href="#" data-categoria="ln">📖 Light Novels</a></li>
+                <li><a class="nav-link" href="#" data-categoria="hq">💥 Quadrinhos</a></li>
+                <li><a class="nav-link" href="#" data-categoria="games">🎮 Games</a></li>
+                <li><a class="nav-link" href="#" data-categoria="colecionaveis">🎲 Colecionáveis</a></li>
+                <li><a class="nav-link" href="#" data-categoria="roupas">👘 Roupas</a></li>
+            </ul>
+        </aside>
+
+        <!-- AQUI O JS RENDEREIZA O CONTEÚDO DA TELA ATUAL (HOME, CARRINHO OU CADASTRO) -->
+        <main id="app"></main>
     </div>
 
-    <div class="header-actions">
-        <a href="carrinho.html" class="btn">🛒 <span>Carrinho</span></a>
-        <div class="botao_cadas">
-            <a class="letra_botao_cadas" href="cadastro.html" title="Minha Conta / Cadastro">👤</a>
-        </div>
-    </div>
-</header>
-
-<div class="container">
-
-    <!-- ASIDE (Gaveta Lateral) -->
-    <aside id="sidebar">
-        <div class="aside-header">
-            <h2>Categorias</h2>
-            <button class="close-btn" id="menuClose" aria-label="Fechar Menu">&times;</button>
-        </div>
-
-        <ul>
-            <li><a class="letra_botao" href="index.html"><span class="icon">🏠</span> Menu</a></li>
-            <li><a class="letra_botao" href="canecas.html"><span class="icon">☕</span> Canecas</a></li>
-            <li><a class="letra_botao" href="ac.html"><span class="icon">🦸</span> Action Figures</a></li>
-            <li><a class="letra_botao" href="quadros.html"><span class="icon">🖼️</span> Quadros</a></li>
-            <li><a class="letra_botao" href="mangas.html"><span class="icon">📚</span> Mangás</a></li>
-            <li><a class="letra_botao" href="ln.html"><span class="icon">📖</span> Light Novels</a></li>
-            <li><a class="letra_botao" href="hq.html"><span class="icon">💥</span> Quadrinhos</a></li>
-            <li><a class="letra_botao" href="games.html"><span class="icon">🎮</span> Games</a></li>
-            <li><a class="letra_botao" href="colecionaveis.html"><span class="icon">🎲</span> Colecionáveis</a></li>
-            <li><a class="letra_botao" href="roupas.html"><span class="icon">👘</span> Roupas</a></li>
-        </ul>
-    </aside>
-
-    <main>
-        <div class="cards">
-
-            <div class="card">
-                <img src="imagens/rogério.png" class="imagem_produto" alt="Action Figure Roger">
-                <h3>Action Figure Roger</h3>
-                <p>R$ 199,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/caneca.cappiece.webp" class="imagem_produto" alt="Caneca Luppyvara e Capizoro">
-                <h3>Caneca Luppyvara e Capizoro</h3>
-                <p>R$ 49,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/mangá.ds.jpeg" class="imagem_produto" alt="Mangá Demon Slayer">
-                <h3>Mangá</h3>
-                <p>R$ 34,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/quadro.luffy.jpeg" class="imagem_produto" alt="Quadro Geek Luffy">
-                <h3>Quadro Geek</h3>
-                <p>R$ 89,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/miranha.webp" class="imagem_produto" alt="HQ Marvel Homem-Aranha">
-                <h3>HQ Marvel</h3>
-                <p>R$ 59,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/re_zero.jpeg" class="imagem_produto" alt="Light Novel Re:Zero">
-                <h3>Light Novel</h3>
-                <p>R$ 42,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="card">
-                <img src="imagens/imagem.png" class="imagem_produto" alt="Cosplay">
-                <h3>Cosplay</h3>
-                <p>R$ 415,84</p>
-                <button>Comprar</button>
-            </div>
-
-        </div>
-    </main>
-
-</div>
-
-<footer>
-    <p>© 2026 Collector's Hub | Todos os direitos reservados.</p>
-</footer>
+    <footer>
+        <p>© 2026 Collector's Hub | A sua loja de colecionáveis geek.</p>
+    </footer>
 
 </body>
 </html>

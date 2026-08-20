@@ -1,172 +1,354 @@
+// Base de dados de Produtos
+const produtos = [
+    { id: 1, nome: "Caneca Luppyvara e Capizoro", preco: 49.90, imagem: "imagens/caneca.cappiece.webp", categoria: "canecas" },
+    { id: 2, nome: "Caneca Gengar Pokemon", preco: 54.60, imagem: "imagens/pokemon.png", categoria: "canecas" },
+    { id: 3, nome: "Caneca Vegeta", preco: 59.95, imagem: "imagens/caneca_vegeta.jpeg", categoria: "canecas" },
+    { id: 4, nome: "Caneca Baby Yoda", preco: 22.23, imagem: "imagens/babycoffee.jpeg", categoria: "canecas" },
+    { id: 5, nome: "Action Figure Roger", preco: 199.90, imagem: "imagens/rogério.png", categoria: "ac" },
+    { id: 6, nome: "Action Figure Sukuna Era Heian", preco: 103.19, imagem: "imagens/sukuna era hein.webp", categoria: "ac" },
+    { id: 7, nome: "Action Figure Nefetpitou", preco: 216.70, imagem: "imagens/nefetpitou.jfif.jpeg", categoria: "ac" },
+    { id: 8, nome: "Action Figure Irmão do Jorel", preco: 99.99, imagem: "imagens/ac-do-irmão-do-Jorel.jpg", categoria: "ac" },
+    { id: 9, nome: "Cosplay Tanjiro Demon Slayer", preco: 415.84, imagem: "imagens/imagem.png", categoria: "roupas" },
+    { id: 10, nome: "Cosplay Frieren", preco: 224.05, imagem: "imagens/frieren cosplay.jpeg", categoria: "roupas" },
+    { id: 11, nome: "Cosplay Spy X Family Anya", preco: 314.90, imagem: "imagens/anya-cosplay.webp", categoria: "roupas" },
+    { id: 12, nome: "Manto da Akatsuki", preco: 199.99, imagem: "imagens/akatsuki.webp", categoria: "roupas" },
+    { id: 13, nome: "Quadro Luffy", preco: 40.99, imagem: "imagens/quadro.luffy.jpeg", categoria: "quadros" },
+    { id: 14, nome: "Quadro Escanor", preco: 99.18, imagem: "imagens/Escanor.jpeg", categoria: "quadros" },
+    { id: 15, nome: "Demon Slayer Mangá Vol. 1", preco: 34.90, imagem: "imagens/mangá.ds.jpeg", categoria: "mangas" },
+    { id: 16, nome: "Jujutsu Kaisen Mangá Vol. 1", preco: 27.90, imagem: "imagens/Jujutsu Kaisen vol 1.jpeg", categoria: "mangas" },
+    { id: 17, nome: "Re:Zero Vol. 1", preco: 42.90, imagem: "imagens/re_zero.jpeg", categoria: "ln" },
+    { id: 18, nome: "Aventuras Marvel #1", preco: 9.90, imagem: "imagens/miranha.webp", categoria: "hq" },
+    { id: 19, nome: "Super Smash Bros", preco: 367.03, imagem: "imagens/ssb.jpeg", categoria: "games" },
+    { id: 20, nome: "Funko Pop James Minions", preco: 115.10, imagem: "imagens/minions.webp", categoria: "colecionaveis" }
+];
+
+// ESTADO DA APLICAÇÃO (SPA)
+let estado = {
+    telaAtual: 'home', // 'home' | 'carrinho' | 'cadastro'
+    categoriaFiltro: 'todos',
+    descontoPercentual: 0,
+    freteValor: 0
+};
+
+// PERSISTÊNCIA NO LOCALSTORAGE
+function getCarrinho() {
+    return JSON.parse(localStorage.getItem("carrinho_hub")) || [];
+}
+
+function salvarCarrinho(carrinho) {
+    localStorage.setItem("carrinho_hub", JSON.stringify(carrinho));
+    atualizarBadge();
+}
+
+function atualizarBadge() {
+    const badge = document.getElementById("cartCountBadge");
+    if (badge) {
+        const carrinho = getCarrinho();
+        const total = carrinho.reduce((acc, item) => acc + item.qtd, 0);
+        badge.textContent = total;
+    }
+}
+
+// ROUTER E RENDERIZADOR DE TELAS
+function navegaPara(tela) {
+    estado.telaAtual = tela;
+    render();
+}
+
+function render() {
+    const main = document.getElementById('app');
+    if (!main) return;
+
+    atualizarBadge();
+
+    if (estado.telaAtual === 'home') {
+        renderHome(main);
+    } else if (estado.telaAtual === 'carrinho') {
+        renderCarrinho(main);
+    } else if (estado.telaAtual === 'cadastro') {
+        renderCadastro(main);
+    }
+}
+
+// 1. TELA DA LOJA / VITRINE
+function renderHome(container) {
+    const listaFiltrada = estado.categoriaFiltro === 'todos' 
+        ? produtos 
+        : produtos.filter(p => p.categoria === estado.categoriaFiltro);
+
+    container.innerHTML = `
+        <div class="cards">
+            ${listaFiltrada.map(p => `
+                <div class="card">
+                    <img src="${p.imagem}" class="imagem_produto" alt="${p.nome}">
+                    <h3>${p.nome}</h3>
+                    <p>R$ ${p.preco.toFixed(2).replace('.', ',')}</p>
+                    <button class="btn-comprar" data-id="${p.id}">Comprar</button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    container.querySelectorAll('.btn-comprar').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.getAttribute('data-id'));
+            const prod = produtos.find(p => p.id === id);
+            
+            let carrinho = getCarrinho();
+            const itemExistente = carrinho.find(i => i.id === id);
+
+            if (itemExistente) {
+                itemExistente.qtd += 1;
+            } else {
+                carrinho.push({ ...prod, qtd: 1 });
+            }
+
+            salvarCarrinho(carrinho);
+            alert(`${prod.nome} foi adicionado ao carrinho!`);
+        });
+    });
+}
+
+// 2. TELA DO CARRINHO DE COMPRAS
+function renderCarrinho(container) {
+    const carrinho = getCarrinho();
+    const META_FRETE_GRATIS = 400;
+
+    if (carrinho.length === 0) {
+        container.innerHTML = `
+            <div class="carrinho-vazio-box">
+                <h2>Seu carrinho está vazio! 😢</h2>
+                <p>Aproveite nossas ofertas e adicione seus colecionáveis favoritos.</p>
+                <button class="btn" id="btnVoltarLoja" style="margin: 20px auto 0 auto;">Ver Produtos</button>
+            </div>
+        `;
+        document.getElementById('btnVoltarLoja').addEventListener('click', () => navegaPara('home'));
+        return;
+    }
+
+    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+    const valorDesconto = subtotal * estado.descontoPercentual;
+    const totalFinal = Math.max(0, subtotal - valorDesconto + estado.freteValor);
+
+    const faltamFrete = META_FRETE_GRATIS - subtotal;
+    const pctFrete = Math.min(100, (subtotal / META_FRETE_GRATIS) * 100);
+
+    container.innerHTML = `
+        <div class="carrinho-page">
+            <div class="carrinho-header">
+                <h1>Meu Carrinho de Compras</h1>
+            </div>
+
+            <div class="frete-progresso-card">
+                <p>
+                    ${subtotal >= META_FRETE_GRATIS 
+                        ? '🎉 Você ganhou <strong>FRETE GRÁTIS</strong>!' 
+                        : `🚚 Falta apenas <strong>R$ ${faltamFrete.toFixed(2).replace('.', ',')}</strong> para Frete Grátis!`}
+                </p>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${pctFrete}%;"></div>
+                </div>
+            </div>
+
+            <div class="carrinho-grid">
+                <section class="carrinho-itens-card">
+                    ${carrinho.map(item => `
+                        <div class="carrinho-item">
+                            <img src="${item.imagem}" alt="${item.nome}">
+                            <div class="item-detalhes">
+                                <h4>${item.nome}</h4>
+                                <p>R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                            </div>
+                            <div class="item-qtd-control">
+                                <button class="btn-qtd qtd-menos" data-id="${item.id}">-</button>
+                                <span>${item.qtd}</span>
+                                <button class="btn-qtd qtd-mais" data-id="${item.id}">+</button>
+                            </div>
+                            <button class="btn-remover-item" data-id="${item.id}">🗑️</button>
+                        </div>
+                    `).join('')}
+                </section>
+
+                <aside class="resumo-card">
+                    <h2>Resumo do Pedido</h2>
+                    
+                    <div class="box-calculo">
+                        <label for="cupomInput">Cupom de Desconto</label>
+                        <div class="input-btn-group">
+                            <input type="text" id="cupomInput" placeholder="Ex: GEEK10">
+                            <button type="button" id="btnCupom">Aplicar</button>
+                        </div>
+                        <small id="cupomInfo"></small>
+                    </div>
+
+                    <div class="box-calculo">
+                        <label for="cepInput">Calcular Frete (CEP)</label>
+                        <div class="input-btn-group">
+                            <input type="text" id="cepInput" placeholder="00000-000" maxlength="9">
+                            <button type="button" id="btnFrete">Calcular</button>
+                        </div>
+                        <small id="freteInfo"></small>
+                    </div>
+
+                    <div class="resumo-detalhes">
+                        <div class="resumo-linha">
+                            <span>Subtotal:</span>
+                            <span>R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        ${estado.descontoPercentual > 0 ? `
+                            <div class="resumo-linha" style="color: #00e676;">
+                                <span>Desconto:</span>
+                                <span>- R$ ${valorDesconto.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        ` : ''}
+                        <div class="resumo-linha">
+                            <span>Frete:</span>
+                            <span>R$ ${estado.freteValor.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="resumo-linha linha-total">
+                            <span>Total:</span>
+                            <span>R$ ${totalFinal.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="pix-desconto">
+                            ⚡ Ou <strong>R$ ${(totalFinal * 0.95).toFixed(2).replace('.', ',')}</strong> no PIX (5% OFF extra)
+                        </div>
+                    </div>
+
+                    <button class="btn-finalizar" id="btnFinalizar">Finalizar Compra</button>
+                </aside>
+            </div>
+        </div>
+    `;
+
+    // Eventos do Carrinho
+    container.querySelectorAll('.qtd-mais').forEach(b => b.addEventListener('click', (e) => {
+        let c = getCarrinho().map(i => i.id === parseInt(e.target.dataset.id) ? {...i, qtd: i.qtd + 1} : i);
+        salvarCarrinho(c); render();
+    }));
+
+    container.querySelectorAll('.qtd-menos').forEach(b => b.addEventListener('click', (e) => {
+        let c = getCarrinho().map(i => i.id === parseInt(e.target.dataset.id) ? {...i, qtd: Math.max(1, i.qtd - 1)} : i);
+        salvarCarrinho(c); render();
+    }));
+
+    container.querySelectorAll('.btn-remover-item').forEach(b => b.addEventListener('click', (e) => {
+        let c = getCarrinho().filter(i => i.id !== parseInt(e.target.dataset.id));
+        salvarCarrinho(c); render();
+    }));
+
+    document.getElementById('btnCupom').addEventListener('click', () => {
+        const val = document.getElementById('cupomInput').value.trim().toUpperCase();
+        if (val === 'GEEK10') {
+            estado.descontoPercentual = 0.10;
+        } else {
+            alert('Cupom inválido! Tente GEEK10');
+        }
+        render();
+    });
+
+    document.getElementById('btnFrete').addEventListener('click', () => {
+        const cep = document.getElementById('cepInput').value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            estado.freteValor = 15.00;
+        } else {
+            alert('CEP Inválido!');
+        }
+        render();
+    });
+
+    document.getElementById('btnFinalizar').addEventListener('click', () => {
+        alert('Pedido realizado com sucesso!');
+        salvarCarrinho([]);
+        navegaPara('home');
+    });
+}
+
+// 3. TELA DE CADASTRO
+function renderCadastro(container) {
+    container.innerHTML = `
+        <div class="cadastro-wrapper">
+            <div class="cadastro-box">
+                <h1>Crie sua Conta</h1>
+                <h2>Junte-se ao Collector's Hub</h2>
+
+                <form id="cadastroForm">
+                    <div class="campo">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" placeholder="Digite seu nome" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" placeholder="••••••••" required minlength="6">
+                    </div>
+
+                    <div class="campo">
+                        <label for="confirmarSenha">Confirmar Senha</label>
+                        <input type="password" id="confirmarSenha" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('cadastroForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const s1 = document.getElementById('senha').value;
+        const s2 = document.getElementById('confirmarSenha').value;
+
+        if (s1 !== s2) {
+            alert('As senhas não coincidem!');
+            return;
+        }
+
+        alert('Cadastro realizado com sucesso!');
+        navegaPara('home');
+    });
+}
+
+// INICIALIZAÇÃO DE EVENTOS GLOBAIS
 document.addEventListener('DOMContentLoaded', () => {
-    
-    /* ===================================================
-       1. MENU HAMBÚRGUER (GAVETA LATERAL)
-       =================================================== */
+    // Rotas pelo Header
+    document.getElementById('logoLink').addEventListener('click', (e) => { e.preventDefault(); navegaPara('home'); });
+    document.getElementById('btnIrCarrinho').addEventListener('click', () => navegaPara('carrinho'));
+    document.getElementById('btnIrCadastro').addEventListener('click', () => navegaPara('cadastro'));
+
+    // Sidebar
     const menuToggle = document.getElementById('menuToggle');
     const menuClose = document.getElementById('menuClose');
     const sidebar = document.getElementById('sidebar');
     const menuOverlay = document.getElementById('menuOverlay');
-    const menuLinks = document.querySelectorAll('aside ul li a');
 
-    const openMenu = () => {
-        if (sidebar && menuOverlay) {
-            sidebar.classList.add('active');
-            menuOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+    const fecharMenu = () => {
+        sidebar.classList.remove('active');
+        menuOverlay.classList.remove('active');
     };
 
-    const closeMenu = () => {
-        if (sidebar && menuOverlay) {
-            sidebar.classList.remove('active');
-            menuOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    };
-
-    if (menuToggle) menuToggle.addEventListener('click', openMenu);
-    if (menuClose) menuClose.addEventListener('click', closeMenu);
-    if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
-
-    menuLinks.forEach(link => link.addEventListener('click', closeMenu));
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && sidebar && sidebar.classList.contains('active')) {
-            closeMenu();
-        }
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.add('active');
+        menuOverlay.classList.add('active');
     });
 
-    /* ===================================================
-       2. LÓGICA DO CARRINHO DE COMPRAS
-       =================================================== */
-    const carrinhoContainer = id('carrinhoContainer');
-    const carrinhoVazio = id('carrinhoVazio');
-    let valorFrete = 0;
-    let percentualDesconto = 0;
+    menuClose.addEventListener('click', fecharMenu);
+    menuOverlay.addEventListener('click', fecharMenu);
 
-    function id(str) { return document.getElementById(str); }
-
-    // Atualiza os totais e subtotais do carrinho
-    function calcularTotais() {
-        const itens = document.querySelectorAll('.carrinho-item');
-        let subtotalGeral = 0;
-
-        if (itens.length === 0) {
-            if (carrinhoContainer) carrinhoContainer.style.display = 'none';
-            if (carrinhoVazio) carrinhoVazio.style.display = 'block';
-            return;
-        }
-
-        itens.forEach(item => {
-            const precoUnit = parseFloat(item.getAttribute('data-preco'));
-            const qtdValorSpan = item.querySelector('.qtd-valor');
-            const subtotalItemSpan = item.querySelector('.subtotal-item');
-
-            const qtd = parseInt(qtdValorSpan.textContent);
-            const totalItem = precoUnit * qtd;
-
-            subtotalItemSpan.textContent = totalItem.toFixed(2).replace('.', ',');
-            subtotalGeral += totalItem;
+    // Categorias no Sidebar
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            estado.categoriaFiltro = link.getAttribute('data-categoria');
+            fecharMenu();
+            navegaPara('home');
         });
-
-        // Atualiza os elementos na tela
-        const subtotalEl = id('resumoSubtotal');
-        const descontoEl = id('valDesconto');
-        const totalEl = id('resumoTotal');
-
-        if (subtotalEl) subtotalEl.textContent = subtotalGeral.toFixed(2).replace('.', ',');
-
-        const valorDesconto = subtotalGeral * percentualDesconto;
-        if (descontoEl) descontoEl.textContent = valorDesconto.toFixed(2).replace('.', ',');
-
-        const totalFinal = Math.max(0, subtotalGeral - valorDesconto + valorFrete);
-        if (totalEl) totalEl.textContent = totalFinal.toFixed(2).replace('.', ',');
-    }
-
-    // Escuta cliques nos botões de aumentar (+), diminuir (-) e remover (🗑️)
-    document.addEventListener('click', (e) => {
-        // Aumentar Quantidade
-        if (e.target.classList.contains('qtd-mais')) {
-            const qtdSpan = e.target.previousElementSibling;
-            qtdSpan.textContent = parseInt(qtdSpan.textContent) + 1;
-            calcularTotais();
-        }
-
-        // Diminuir Quantidade
-        if (e.target.classList.contains('qtd-menos')) {
-            const qtdSpan = e.target.nextElementSibling;
-            let qtdAtual = parseInt(qtdSpan.textContent);
-            if (qtdAtual > 1) {
-                qtdSpan.textContent = qtdAtual - 1;
-                calcularTotais();
-            }
-        }
-
-        // Remover Item
-        if (e.target.classList.contains('item-remover')) {
-            const item = e.target.closest('.carrinho-item');
-            item.style.opacity = '0';
-            item.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                item.remove();
-                calcularTotais();
-            }, 300);
-        }
     });
 
-    // Simulação de Frete por CEP
-    const btnFrete = id('btnFrete');
-    if (btnFrete) {
-        btnFrete.addEventListener('click', () => {
-            const cepInput = id('cepInput').value.trim();
-            const freteInfo = id('freteInfo');
-            const valFreteEl = id('valFrete');
-
-            if (cepInput.length >= 8) {
-                valorFrete = 15.00; // Valor fixo de frete para teste
-                valFreteEl.textContent = valorFrete.toFixed(2).replace('.', ',');
-                freteInfo.style.color = '#00e676';
-                freteInfo.textContent = '✓ Frete Normal: R$ 15,00 (Entrega em 4 dias)';
-                calcularTotais();
-            } else {
-                freteInfo.style.color = '#ff5252';
-                freteInfo.textContent = 'Digite um CEP válido com 8 dígitos.';
-            }
-        });
-    }
-
-    // Simulação de Cupom de Desconto (Cupom: GEEK10)
-    const btnCupom = id('btnCupom');
-    if (btnCupom) {
-        btnCupom.addEventListener('click', () => {
-            const cupom = id('cupomInput').value.trim().toUpperCase();
-            const cupomInfo = id('cupomInfo');
-            const linhaDesconto = id('linhaDesconto');
-
-            if (cupom === 'GEEK10') {
-                percentualDesconto = 0.10; // 10% de desconto
-                linhaDesconto.style.display = 'flex';
-                cupomInfo.style.color = '#00e676';
-                cupomInfo.textContent = '✓ Cupom GEEK10 (10% OFF) aplicado com sucesso!';
-                calcularTotais();
-            } else {
-                cupomInfo.style.color = '#ff5252';
-                cupomInfo.textContent = 'Cupom inválido. Tente usar: GEEK10';
-            }
-        });
-    }
-
-    // Botão Finalizar Compra
-    const btnCheckout = id('btnCheckout');
-    if (btnCheckout) {
-        btnCheckout.addEventListener('click', () => {
-            alert('🎉 Pedido realizado com sucesso! Obrigado por comprar no Collector\'s Hub!');
-        });
-    }
-
-    // Executa a primeira contagem se estiver na página do carrinho
-    if (document.querySelector('.carrinho-item')) {
-        calcularTotais();
-    }
+    // Render Inicial
+    render();
 });
