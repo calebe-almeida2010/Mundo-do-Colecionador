@@ -419,3 +419,15 @@ footer {
 @media(max-width: 768px) {
     .carrinho-grid { grid-template-columns: 1fr; }
 }
+
+.btn-comprar:disabled {
+    background: #3a3852 !important;
+    color: #8a8a9e;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none !important;
+}
+
+.card-esgotado {
+    opacity: 0.7;
+}
