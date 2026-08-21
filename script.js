@@ -1,5 +1,49 @@
+// ==========================================
+// 1. ESTADO GLOBAL E VARIÁVEIS
+// ==========================================
+let produtos = []; // Será preenchido via produtos.json
 
-// GERENCIAMENTO DE USUÁRIO NO LOCALSTORAGE
+let estado = {
+    telaAtual: 'home',
+    categoriaFiltro: 'todos',
+    descontoPercentual: 0,
+    freteValor: 0
+};
+
+// ==========================================
+// 2. BUSCA DE DADOS DO JSON
+// ==========================================
+async function carregarProdutos() {
+    try {
+        const resposta = await fetch('produtos.json');
+        
+        if (!resposta.ok) {
+            throw new Error(`Erro na requisição: ${resposta.status}`);
+        }
+
+        // Carrega a lista de produtos vinda do JSON
+        produtos = await resposta.json();
+
+        // Renderiza a tela assim que os dados chegarem
+        render();
+
+    } catch (erro) {
+        console.error('Erro ao carregar produtos.json:', erro);
+        const main = document.getElementById('app');
+        if (main) {
+            main.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #ff5252;">
+                    <h2>⚠️ Não foi possível carregar os produtos</h2>
+                    <p>Verifique se o arquivo <strong>produtos.json</strong> está na mesma pasta do projeto e se você está executando em um servidor local (ex: Live Server).</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// ==========================================
+// 3. GERENCIAMENTO DE USUÁRIO (LOCALSTORAGE)
+// ==========================================
 function getUsuarioLogado() {
     return JSON.parse(localStorage.getItem("usuario_hub")) || null;
 }
@@ -15,22 +59,9 @@ function fazerLogout() {
     navegaPara('home');
 }
 
-// Atualiza o botão do topo com o nome do usuário se estiver logado
 function atualizarUIHeader() {
     const btnCadastro = document.getElementById("btnIrCadastro");
     const usuario = getUsuarioLogado();
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Atualiza a interface do cabeçalho com dados de login salvos
-    atualizarUIHeader();
-
-    // DEMAIS EVENTOS EXISTENTES DO SEU SCRIPT...
-    document.getElementById('logoLink').addEventListener('click', (e) => { e.preventDefault(); navegaPara('home'); });
-    document.getElementById('btnIrCarrinho').addEventListener('click', () => navegaPara('carrinho'));
-    document.getElementById('btnIrCadastro').addEventListener('click', () => navegaPara('cadastro'));
-
-    render();
-});
 
     if (usuario && btnCadastro) {
         const primeiroNome = usuario.nome.split(' ')[0];
@@ -42,67 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
-const produtos = [
-    { id: 1, nome: "Caneca Luppyvara e Capizoro", preco: 39.90, precoOriginal: 49.90, imagem: "imagens/caneca.cappiece.webp", categoria: "canecas", estoque: 5, destaque: true },
-    { id: 2, nome: "Caneca Gengar Pokemon", preco: 54.60, imagem: "imagens/pokemon.png", categoria: "canecas", estoque: 5, destaque: false },
-    { id: 3, nome: "Caneca Vegeta", preco: 59.95, imagem: "imagens/caneca_vegeta.jpeg", categoria: "canecas", estoque: 5, destaque: false },
-    { id: 4, nome: "Caneca Baby Yoda", preco: 16.99, precoOriginal: 22.23, imagem: "imagens/babycoffee.jpeg", categoria: "canecas", estoque: 5, destaque: true },
-    { id: 5, nome: "Action Figure Roger", preco: 199.90, imagem: "imagens/rogério.png", categoria: "ac", estoque: 5, destaque: false },
-    { id: 6, nome: "Action Figure Sukuna Era Heian", preco: 98.95, precoOriginal: 103.19, imagem: "imagens/sukuna era hein.webp", categoria: "ac", estoque: 5, destaque: true },
-    { id: 7, nome: "Action Figure Nefetpitou", preco: 216.70, imagem: "imagens/nefetpitou.jfif.jpeg", categoria: "ac", estoque: 5, destaque: false },
-    { id: 8, nome: "Action Figure Irmão do Jorel", preco: 99.99, imagem: "imagens/ac-do-irmão-do-Jorel.jpg", categoria: "ac", estoque: 5, destaque: false },
-    { id: 9, nome: "Cosplay Tanjiro Demon Slayer", preco: 415.84, imagem: "imagens/imagem.png", categoria: "roupas", estoque: 5, destaque: false },
-    { id: 10, nome: "Cosplay Frieren", preco: 224.05, imagem: "imagens/frieren cosplay.jpeg", categoria: "roupas", estoque: 5, destaque: false },
-    { id: 11, nome: "Cosplay Spy X Family Anya", preco: 201.50, precoOriginal: 314.90, imagem: "imagens/anya-cosplay.webp", categoria: "roupas", estoque: 5, destaque: true },
-    { id: 12, nome: "Manto da Akatsuki", preco: 199.99, imagem: "imagens/akatsuki.webp", categoria: "roupas", estoque: 5, destaque: false },
-    { id: 13, nome: "Quadro Luffy", preco: 40.99, imagem: "imagens/quadro.luffy.jpeg", categoria: "quadros", estoque: 5, destaque: false },
-    { id: 14, nome: "Quadro Escanor", preco: 99.18, imagem: "imagens/Escanor.jpeg", categoria: "quadros", estoque: 5, destaque: false },
-    { id: 15, nome: "Demon Slayer Mangá Vol. 1", preco: 34.90, imagem: "imagens/demon-slayer.jpeg", categoria: "mangas", estoque: 5, destaque: false },
-    { id: 16, nome: "Jujutsu Kaisen Mangá Vol. 1", preco: 22.55, precoOriginal: 27.90, imagem: "imagens/Jujutsu Kaisen vol 1.jpeg", categoria: "mangas", estoque: 5, destaque: true },
-    { id: 17, nome: "Re:Zero Vol. 1", preco: 42.90, imagem: "imagens/re_zero.jpeg", categoria: "ln", estoque: 5, destaque: false },
-    { id: 18, nome: "Aventuras Marvel #1", preco: 9.90, imagem: "imagens/miranha.webp", categoria: "hq", estoque: 5, destaque: false },
-    { id: 19, nome: "Super Smash Bros", preco: 367.03, imagem: "imagens/ssb.jpeg", categoria: "games", estoque: 5, destaque: false },
-    { id: 20, nome: "Quadro Jojo", preco: 30.00, precoOriginal: 49.90, imagem: "imagens/Jojo.jpeg", categoria: "quadros", estoque: 5, destaque: true },
-    { id: 21, nome: "Funko Pop James Minions", preco: 115.10, imagem: "imagens/minions.webp", categoria: "colecionaveis", estoque: 5, destaque: false },
-    { id: 22, nome: "Quadro Berserk", preco: 49.90, imagem: "imagens/berserk.jpeg", categoria: "quadros", estoque: 5, destaque: false },
-    { id: 23, nome: "Hunter X Hunter Vol. 1", preco: 71.68, imagem: "imagens/hunter x hunter.jpeg", categoria: "mangas", estoque: 5, destaque: false },
-    { id: 24, nome: "Blue Lock Vol. 1", preco: 32.90, precoOriginal: 43.90, imagem: "imagens/bluelock.jpg", categoria: "mangas", estoque: 5, destaque: true },
-    { id: 25, nome: "Diarios de uma Apotecária Vol. 1", preco: 73.69, imagem: "imagens/Diarios de uma Apotecária .jpg", categoria: "ln", estoque: 5, destaque: false },
-    { id: 26, nome: "Eighty Six Vol. 1", preco: 41.26, imagem: "imagens/Eighty Six.jpg", categoria: "ln", estoque: 5, destaque: false },
-    { id: 27, nome: "Lycoris Recoil: Ordinary Days Vol. 1", preco: 25.95, imagem: "imagens/lycorisnovel.webp", categoria: "ln", estoque: 5, destaque: false },
-    { id: 28, nome: "Superman/Batman: DC Compact Comics Edition", preco: 59.99, precoOriginal: 67.93, imagem: "imagens/Superman e Batman.jpg", categoria: "hq", estoque: 5, destaque: true },
-    { id: 29, nome: "Invencível #1: Negócios de Família", preco: 19.90, imagem: "imagens/invencível.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 30, nome: "The Boys Vol. 1: O Nome do Jogo", preco: 80.00, imagem: "imagens/theboys.jpg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 31, nome: "Sonic Frontiers", preco: 93.80, precoOriginal: 100.36, imagem: "imagens/Sonic.jpeg", categoria: "games", estoque: 5, destaque: true },
-    { id: 32, nome: "Mortal Kombat 1", preco: 217.79, imagem: "imagens/mk1.jpg", categoria: "games", estoque: 5, destaque: false },
-    { id: 33, nome: "Street Fighter 6", preco: 249.00, imagem: "imagens/streetfighter6.webp", categoria: "games", estoque: 5, destaque: false },
-    { id: 34, nome: "Chapéu do Luffy", preco: 59.90, imagem: "imagens/chapeu do luffy.jpeg", categoria: "colecionaveis", estoque: 5, destaque: false },
-    { id: 35, nome: "Máscara Sally Face", preco: 80.75, imagem: "imagens/sallyface.jpeg", categoria: "colecionaveis", estoque: 5, destaque: false },
-    { id: 36, nome: "3 Chaveiros de God Of War", preco: 150.00, precoOriginal: 200.00, imagem: "imagens/chaveirogodofwar.jpg", categoria: "colecionaveis", estoque: 5, destaque: true },
-    { id: 37, nome: "Batman X Fortnite Vol. 1", preco: 9.90, imagem: "imagens/dc-e-fort1.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 38, nome: "Batman X Fortnite Vol. 2", preco: 9.90, imagem: "imagens/dc-e-fort2.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 39, nome: "Batman X Fortnite Vol. 3", preco: 9.90, imagem: "imagens/dc-e-fort3.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 40, nome: "Batman X Fortnite Vol. 4", preco: 9.90, imagem: "imagens/dc-e-fort4.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 41, nome: "Batman X Fortnite Vol. 5", preco: 9.90, imagem: "imagens/dc-e-fort5.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 42, nome: "Batman X Fortnite Vol. 6", preco: 9.90, imagem: "imagens/dc-e-fort6.avif", categoria: "hq", estoque: 5, destaque: false },
-    { id: 43, nome: "Marvel X Fortnite: Guerra do Ponto Zero Vol. 1", preco: 14.90, imagem: "imagens/mrl-e-fort1.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 44, nome: "Marvel X Fortnite: Guerra do Ponto Zero Vol. 2", preco: 14.90, imagem: "imagens/mrl-e-fort2.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 45, nome: "Marvel X Fortnite: Guerra do Ponto Zero Vol. 3", preco: 14.90, imagem: "imagens/mrl-e-fort3.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 46, nome: "Marvel X Fortnite: Guerra do Ponto Zero Vol. 4", preco: 14.90, imagem: "imagens/mrl-e-fort4.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 47, nome: "Marvel X Fortnite: Guerra do Ponto Zero Vol. 5", preco: 14.90, imagem: "imagens/mrl-e-fort5.jpeg", categoria: "hq", estoque: 5, destaque: false },
-    { id: 48, nome: "Quadro de Procurado Chopper", preco: 18.00, precoOriginal: 30.00, imagem: "imagens/chopper.jpeg", categoria: "quadros", estoque: 5, destaque: true },
-    { id: 49, nome: "Caneca de Death Note", preco: 35.99, imagem: "imagens/deathnote.webp", categoria: "canecas", estoque: 5, destaque: false },
-    { id: 50, nome: "Action Figure do Monkey D. Luffy", preco: 327.50, precoOriginal: 368.11, imagem: "imagens/acLuffy.webp", categoria: "ac", estoque: 5, destaque: true },
-    { id: 51, nome: "Attack On Titan", preco: 49.00, imagem: "imagens/attk.jpg", categoria: "mangas", estoque: 5, destaque: false },
-];
-
-let estado = {
-    telaAtual: 'home',
-    categoriaFiltro: 'todos',
-    descontoPercentual: 0,
-    freteValor: 0
-};
-
+// ==========================================
+// 4. GERENCIAMENTO DO CARRINHO (LOCALSTORAGE)
+// ==========================================
 function getCarrinho() {
     return JSON.parse(localStorage.getItem("carrinho_hub")) || [];
 }
@@ -121,17 +94,39 @@ function atualizarBadge() {
     }
 }
 
+// ==========================================
+// 5. CONFIGURAÇÕES E TEMA (LOCALSTORAGE)
+// ==========================================
+function getConfiguracoes() {
+    return JSON.parse(localStorage.getItem("config_hub")) || {
+        tema: 'dark',
+        notificacoes: true,
+        moeda: 'BRL'
+    };
+}
+
+function salvarConfiguracoes(config) {
+    localStorage.setItem("config_hub", JSON.stringify(config));
+    aplicarTema(config.tema);
+}
+
+function aplicarTema(tema) {
+    if (tema === 'light') {
+        document.body.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+    }
+}
+
+// ==========================================
+// 6. ROTEADOR E NAVEGAÇÃO
+// ==========================================
 function navegaPara(tela) {
     estado.telaAtual = tela;
     render();
 }
 
 function render() {
-    
-    } else if (estado.telaAtual === 'configuracoes') {
-        renderConfiguracoes(main);
-      
-
     const main = document.getElementById('app');
     if (!main) return;
 
@@ -143,10 +138,16 @@ function render() {
         renderCarrinho(main);
     } else if (estado.telaAtual === 'cadastro') {
         renderCadastro(main);
+    } else if (estado.telaAtual === 'configuracoes') {
+        renderConfiguracoes(main);
     }
 }
 
-// Função auxiliar para montar o HTML dos preços e calcular a porcentagem OFF
+// ==========================================
+// 7. RENDERS DE TELAS
+// ==========================================
+
+// Helper para preços
 function renderPrecoHTML(p) {
     if (p.precoOriginal && p.precoOriginal > p.preco) {
         const pctDesconto = Math.round(((p.precoOriginal - p.preco) / p.precoOriginal) * 100);
@@ -161,7 +162,7 @@ function renderPrecoHTML(p) {
     return `<div class="container-preco"><span class="preco-atual">R$ ${p.preco.toFixed(2).replace('.', ',')}</span></div>`;
 }
 
-// Atualize a renderHome para usar o renderPrecoHTML
+// TELA PRINCIPAL / HOME
 function renderHome(container) {
     const produtosDestaque = produtos.filter(p => p.destaque);
     const listaFiltrada = estado.categoriaFiltro === 'todos' 
@@ -215,7 +216,7 @@ function renderHome(container) {
         </div>
     `;
 
-    // Eventos de clique mantêm a mesma lógica
+    // Eventos de compra
     container.querySelectorAll('.btn-comprar').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = parseInt(e.target.getAttribute('data-id'));
@@ -239,7 +240,8 @@ function renderHome(container) {
         });
     });
 }
-// 2. TELA DO CARRINHO DE COMPRAS
+
+// TELA DO CARRINHO DE COMPRAS
 function renderCarrinho(container) {
     const carrinho = getCarrinho();
     const META_FRETE_GRATIS = 400;
@@ -345,13 +347,13 @@ function renderCarrinho(container) {
         </div>
     `;
 
-    // AUMENTAR QUANTIDADE NO CARRINHO
+    // Botões do Carrinho
     container.querySelectorAll('.qtd-mais').forEach(b => b.addEventListener('click', (e) => {
         const id = parseInt(e.target.dataset.id);
         const prod = produtos.find(p => p.id === id);
 
         if (prod && prod.estoque > 0) {
-            prod.estoque -= 1; // Tira 1 do estoque
+            prod.estoque -= 1;
             let c = getCarrinho().map(i => i.id === id ? {...i, qtd: i.qtd + 1} : i);
             salvarCarrinho(c);
             render();
@@ -360,7 +362,6 @@ function renderCarrinho(container) {
         }
     }));
 
-    // DIMINUIR QUANTIDADE NO CARRINHO
     container.querySelectorAll('.qtd-menos').forEach(b => b.addEventListener('click', (e) => {
         const id = parseInt(e.target.dataset.id);
         const prod = produtos.find(p => p.id === id);
@@ -370,9 +371,8 @@ function renderCarrinho(container) {
         if (item) {
             if (item.qtd > 1) {
                 item.qtd -= 1;
-                if (prod) prod.estoque += 1; // Devolve 1 ao estoque
+                if (prod) prod.estoque += 1;
             } else {
-                // Se era 1 e clicou em -, remove do carrinho e devolve o estoque
                 carrinho = carrinho.filter(i => i.id !== id);
                 if (prod) prod.estoque += 1;
             }
@@ -381,7 +381,6 @@ function renderCarrinho(container) {
         }
     }));
 
-    // REMOVER ITEM DO CARRINHO
     container.querySelectorAll('.btn-remover-item').forEach(b => b.addEventListener('click', (e) => {
         const id = parseInt(e.target.dataset.id);
         const prod = produtos.find(p => p.id === id);
@@ -389,7 +388,7 @@ function renderCarrinho(container) {
         const item = carrinho.find(i => i.id === id);
 
         if (item) {
-            if (prod) prod.estoque += item.qtd; // Devolve toda a quantidade ao estoque
+            if (prod) prod.estoque += item.qtd;
             carrinho = carrinho.filter(i => i.id !== id);
             salvarCarrinho(carrinho);
             render();
@@ -423,10 +422,10 @@ function renderCarrinho(container) {
     });
 }
 
+// TELA DE CADASTRO / PERFIL
 function renderCadastro(container) {
     const usuario = getUsuarioLogado();
 
-    // Se já estiver logado, exibe os dados do usuário e opção de Logout
     if (usuario) {
         container.innerHTML = `
             <div class="cadastro-wrapper">
@@ -445,7 +444,6 @@ function renderCadastro(container) {
         return;
     }
 
-    // Se não estiver logado, exibe o formulário de cadastro
     container.innerHTML = `
         <div class="cadastro-wrapper">
             <div class="cadastro-box">
@@ -492,77 +490,13 @@ function renderCadastro(container) {
             return;
         }
 
-        // Salva os dados no localStorage
-        const novoUsuario = { nome, email };
-        salvarUsuario(novoUsuario);
-
+        salvarUsuario({ nome, email });
         alert(`Bem-vindo(a), ${nome}! Seu cadastro foi salvo com sucesso.`);
         navegaPara('home');
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Aplica o tema salvo ao carregar o site
-    aplicarTema(getConfiguracoes().tema);
-
-    document.getElementById('btnIrConfig').addEventListener('click', () => navegaPara('configuracoes'));
-    document.getElementById('logoLink').addEventListener('click', (e) => { e.preventDefault(); navegaPara('home'); });
-    document.getElementById('btnIrCarrinho').addEventListener('click', () => navegaPara('carrinho'));
-    document.getElementById('btnIrCadastro').addEventListener('click', () => navegaPara('cadastro'));
-
-    const menuToggle = document.getElementById('menuToggle');
-    const menuClose = document.getElementById('menuClose');
-    const sidebar = document.getElementById('sidebar');
-    const menuOverlay = document.getElementById('menuOverlay');
-
-    const fecharMenu = () => {
-        sidebar.classList.remove('active');
-        menuOverlay.classList.remove('active');
-    };
-
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        menuOverlay.classList.add('active');
-    });
-
-    if (menuClose) menuClose.addEventListener('click', fecharMenu);
-    if (menuOverlay) menuOverlay.addEventListener('click', fecharMenu);
-
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            estado.categoriaFiltro = link.getAttribute('data-categoria');
-            fecharMenu();
-            navegaPara('home');
-        });
-    });
-
-    render();
-});
-
-// --- CONFIGURAÇÕES DO SITE NO LOCALSTORAGE ---
-function getConfiguracoes() {
-    return JSON.parse(localStorage.getItem("config_hub")) || {
-        tema: 'dark',
-        notificacoes: true,
-        moeda: 'BRL'
-    };
-}
-
-function salvarConfiguracoes(config) {
-    localStorage.setItem("config_hub", JSON.stringify(config));
-    aplicarTema(config.tema);
-}
-
-function aplicarTema(tema) {
-    if (tema === 'light') {
-        document.body.classList.add('light-mode');
-    } else {
-        document.body.classList.remove('light-mode');
-    }
-}
-
-// --- TELA DE CONFIGURAÇÕES ---
+// TELA DE CONFIGURAÇÕES
 function renderConfiguracoes(container) {
     const usuario = getUsuarioLogado();
     const config = getConfiguracoes();
@@ -572,7 +506,6 @@ function renderConfiguracoes(container) {
             <div class="config-box">
                 <h1>⚙️ Configurações</h1>
                 
-                <!-- SEÇÃO 1: PREFERÊNCIAS DO SITE -->
                 <div class="config-secao">
                     <h2>Preferências do Site</h2>
                     
@@ -593,7 +526,6 @@ function renderConfiguracoes(container) {
                     </div>
                 </div>
 
-                <!-- SEÇÃO 2: DADOS DA CONTA -->
                 <div class="config-secao">
                     <h2>Dados da Conta</h2>
                     ${usuario ? `
@@ -617,7 +549,6 @@ function renderConfiguracoes(container) {
         </div>
     `;
 
-    // Eventos de Preferências do Site
     document.getElementById('selectTema').addEventListener('change', (e) => {
         config.tema = e.target.value;
         salvarConfiguracoes(config);
@@ -628,7 +559,6 @@ function renderConfiguracoes(container) {
         salvarConfiguracoes(config);
     });
 
-    // Eventos da Conta
     const formConta = document.getElementById('formAtualizarConta');
     if (formConta) {
         formConta.addEventListener('submit', (e) => {
@@ -647,3 +577,55 @@ function renderConfiguracoes(container) {
         btnLogin.addEventListener('click', () => navegaPara('cadastro'));
     }
 }
+
+// ==========================================
+// 8. INICIALIZAÇÃO DA APLICAÇÃO
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Aplica o tema e atualiza a UI com dados salvos
+    aplicarTema(getConfiguracoes().tema);
+    atualizarUIHeader();
+
+    // 2. Eventos nos botões do topo/header
+    const btnLogo = document.getElementById('logoLink');
+    const btnCarrinho = document.getElementById('btnIrCarrinho');
+    const btnCadastro = document.getElementById('btnIrCadastro');
+    const btnConfig = document.getElementById('btnIrConfig');
+
+    if (btnLogo) btnLogo.addEventListener('click', (e) => { e.preventDefault(); navegaPara('home'); });
+    if (btnCarrinho) btnCarrinho.addEventListener('click', () => navegaPara('carrinho'));
+    if (btnCadastro) btnCadastro.addEventListener('click', () => navegaPara('cadastro'));
+    if (btnConfig) btnConfig.addEventListener('click', () => navegaPara('configuracoes'));
+
+    // 3. Controle da Sidebar / Menu Hambúrguer
+    const menuToggle = document.getElementById('menuToggle');
+    const menuClose = document.getElementById('menuClose');
+    const sidebar = document.getElementById('sidebar');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    const fecharMenu = () => {
+        if (sidebar) sidebar.classList.remove('active');
+        if (menuOverlay) menuOverlay.classList.remove('active');
+    };
+
+    if (menuToggle) menuToggle.addEventListener('click', () => {
+        if (sidebar) sidebar.classList.add('active');
+        if (menuOverlay) menuOverlay.classList.add('active');
+    });
+
+    if (menuClose) menuClose.addEventListener('click', fecharMenu);
+    if (menuOverlay) menuOverlay.addEventListener('click', fecharMenu);
+
+    // 4. Filtros de Categorias
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            estado.categoriaFiltro = link.getAttribute('data-categoria');
+            fecharMenu();
+            navegaPara('home');
+        });
+    });
+
+    // 5. Busca produtos no produtos.json e inicia o render
+    carregarProdutos();
+});
