@@ -431,3 +431,128 @@ footer {
 .card-esgotado {
     opacity: 0.7;
 }
+
+/* --- SEÇÃO DE DESTAQUES --- */
+.secao-titulo {
+    font-size: 1.5rem;
+    margin: 20px 0 15px 0;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.destaques-section {
+    margin-bottom: 35px;
+}
+
+.destaques-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.card-destaque {
+    position: relative;
+    background: linear-gradient(145deg, #231b42, var(--bg-card));
+    border: 2px solid var(--orange-vibrant);
+    border-radius: 18px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 8px 20px rgba(255, 140, 50, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-destaque:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255, 140, 50, 0.3);
+}
+
+.card-destaque img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.badge-destaque {
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    background: var(--orange-vibrant);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.destaque-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.destaque-info h3 {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.destaque-info .preco {
+    color: #00e676;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.destaque-info button {
+    padding: 8px 12px;
+    border: none;
+    background: linear-gradient(90deg, var(--purple-main), var(--orange-vibrant));
+    color: white;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.destaque-info button:hover {
+    filter: brightness(1.15);
+}
+
+/* --- ESTILOS DE PREÇO COM DESCONTO --- */
+.container-preco {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 15px 10px 15px;
+    flex-wrap: wrap;
+}
+
+.preco-atual {
+    color: var(--orange-vibrant);
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.preco-antigo {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.badge-desconto {
+    background: #ff5252;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
