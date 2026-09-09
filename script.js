@@ -16,23 +16,6 @@ let estado = {
 
 let autoPlayTimer = null;
 
-// ==========================================
-// LOGOS E NOMES POR CATEGORIA
-// (Ajuste os caminhos abaixo conforme os nomes reais dos seus arquivos na pasta 'imagens/')
-// ==========================================
-const logosCategorias = {
-    'todos': 'imagens/Logo.png',
-    'canecas': 'imagens/logo-canecas.png',
-    'ac': 'imagens/logo-ac.png',
-    'quadros': 'imagens/logo-quadros.png',
-    'mangas': 'imagens/logo-manga.png',
-    'ln': 'imagens/logo-ln.png',
-    'hq': 'imagens/logo-quadrinhos.png',
-    'games': 'imagens/logo-games.png',
-    'colecionaveis': 'imagens/logo-colecionaveis.png',
-    'roupas': 'imagens/logo-roupas.png'
-};
-
 // Atualiza a logo no Header de acordo com a categoria selecionada
 function atualizarLogoHeader() {
     const logoImg = document.querySelector('#logoLink img');
@@ -218,7 +201,6 @@ function abrirModal(produto) {
     };
 
     modal.classList.add('active');
-
 }
 
 function fecharModal() {
