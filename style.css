@@ -626,3 +626,235 @@ body.light-mode {
         height: 180px;
     }
 }
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.config-card {
+    background: var(--bg-card, #1e1e2d);
+    border: 1px solid #2b2b3d;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.config-card:hover {
+    border-color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+.config-card-danger {
+    border-color: #ff525233;
+    grid-column: 1 / -1; /* Ocupa a largura total na parte inferior */
+}
+
+.config-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.config-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.config-form-group input, 
+.config-form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    background: #2b2b3d;
+    color: #fff;
+    border: 1px solid #3f3f5a;
+}
+
+.conta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.conta-card {
+    background: var(--bg-card, #1e1e2d);
+    border: 1px solid #2b2b3d;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.perfil-header-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.avatar-circulo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #6c5ce7;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.badge-fidelidade {
+    background: rgba(108, 92, 231, 0.2);
+    color: #a29bfe;
+    border: 1px solid #6c5ce7;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.pedido-item {
+    background: #2b2b3d;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-tag {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.status-entregue { background: #00b894; color: #fff; }
+.status-processando { background: #fdcb6e; color: #2d3436; }
+
+/* GRID E CARDS DA CONTA */
+.conta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.conta-card {
+    background: var(--bg-card, #1e1e2d);
+    border: 1px solid #2b2b3d;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.conta-card:hover {
+    border-color: #6c5ce7;
+    transform: translateY(-2px);
+}
+
+.conta-card-full {
+    grid-column: 1 / -1;
+}
+
+/* PERFIL */
+.perfil-header-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-circulo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #6c5ce7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.badge-fidelidade {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 12px;
+    background: rgba(108, 92, 231, 0.15);
+    color: #a29bfe;
+    border: 1px solid #6c5ce7;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* LISTA DE AÇÕES E PEDIDOS */
+.acoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.pedido-item {
+    background: #2b2b3d;
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-tag {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.status-entregue {
+    background: #00b894;
+    color: #ffffff;
+}
+
+/* --- ESTILO DO BANNER DE CATEGORIA COM LOGO --- */
+.categoria-header-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 20px 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.img-categoria-banner {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(107, 63, 201, 0.5));
+}
+
+.categoria-header-banner h2 {
+    font-size: 1.8rem;
+    color: var(--text-primary);
+}

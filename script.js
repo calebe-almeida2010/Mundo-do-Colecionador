@@ -17,6 +17,35 @@ let estado = {
 let autoPlayTimer = null;
 
 // ==========================================
+// LOGOS E NOMES POR CATEGORIA
+// (Ajuste os caminhos abaixo conforme os nomes reais dos seus arquivos na pasta 'imagens/')
+// ==========================================
+const logosCategorias = {
+    'todos': 'imagens/Logo.png',
+    'canecas': 'imagens/logo-canecas.png',
+    'ac': 'imagens/logo-ac.png',
+    'quadros': 'imagens/logo-quadros.png',
+    'mangas': 'imagens/logo-manga.png',
+    'ln': 'imagens/logo-ln.png',
+    'hq': 'imagens/logo-quadrinhos.png',
+    'games': 'imagens/logo-games.png',
+    'colecionaveis': 'imagens/logo-colecionaveis.png',
+    'roupas': 'imagens/logo-roupas.png'
+};
+
+// Atualiza a logo no Header de acordo com a categoria selecionada
+function atualizarLogoHeader() {
+    const logoImg = document.querySelector('#logoLink img');
+    if (logoImg) {
+        const catAtiva = estado.telaAtual === 'home' ? estado.categoriaFiltro : 'todos';
+        const caminhoLogo = logosCategorias[catAtiva] || logosCategorias['todos'];
+        
+        logoImg.src = caminhoLogo;
+        logoImg.alt = `Logo ${nomesCategorias[catAtiva] || "Collector's Hub"}`;
+    }
+}
+
+// ==========================================
 // 2. SISTEMA DE NOTIFICAÇÕES (TOAST)
 // ==========================================
 function exibirToast(mensagem) {
@@ -189,12 +218,15 @@ function abrirModal(produto) {
     };
 
     modal.classList.add('active');
+
 }
 
 function fecharModal() {
     const modal = document.getElementById('modalProduto');
     if (modal) modal.classList.remove('active');
 }
+
+
 
 // ==========================================
 // 7. CONFIGURAÇÕES E TEMA
@@ -601,64 +633,150 @@ function renderCarrinho(container) {
     });
 }
 
-function renderCadastro(container) {
-    const usuario = getUsuarioLogado();
+// Helper para recuperar histórico de pedidos salvos
+function getHistoricoPedidos() {
+    return JSON.parse(localStorage.getItem("pedidos_hub")) || [];
+}
 
+// ==========================================
+// MÓDULO DE AUTENTICAÇÃO E CONTA
+// ==========================================
+
+// Helpers de dados do usuário e pedidos
+function getHistoricoPedidos() {
+    return JSON.parse(localStorage.getItem("pedidos_hub")) || [];
+}
+
+function salvarUsuario(usuario) {
+    localStorage.setItem("usuario_logado", JSON.stringify(usuario));
+}
+
+function fazerLogout() {
+    localStorage.removeItem("usuario_logado");
+    if (typeof estado !== 'undefined') estado.modoAutenticacao = 'login';
+    exibirToast("👋 Você saiu da sua conta.");
+    render();
+}
+
+function renderCadastro(container) {
+    const usuario = typeof getUsuarioLogado === 'function' ? getUsuarioLogado() : JSON.parse(localStorage.getItem("usuario_logado"));
+
+    // -------------------------------------------------------------
+    // VISÃO 1: USUÁRIO LOGADO
+    // -------------------------------------------------------------
     if (usuario) {
+        const pedidos = getHistoricoPedidos();
+        const iniciais = usuario.nome ? usuario.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'U';
+        const pontosFidelidade = pedidos.length * 100 + 50;
+
         container.innerHTML = `
-            <div class="cadastro-wrapper">
-                <div class="cadastro-box" style="text-align: center;">
-                    <h1>Minha Conta</h1>
-                    <p style="margin: 20px 0; color: var(--text-secondary);">
-                        Olá, <strong style="color: var(--text-primary); font-size: 1.1rem;">${usuario.nome}</strong>!<br>
-                        <span>${usuario.email}</span>
-                    </p>
-                    <button id="btnSair" class="btn" style="background: #ff5252;">Sair da Conta</button>
+            <div class="cadastro-wrapper" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                <h1>👤 Minha Conta</h1>
+
+                <div class="conta-grid">
+                    <!-- CARD PERFIL -->
+                    <div class="conta-card">
+                        <div>
+                            <div class="perfil-header-box">
+                                <div class="avatar-circulo">${iniciais}</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.2rem;">${usuario.nome}</h3>
+                                    <p style="color: #a0a3c4; margin: 2px 0 0; font-size: 0.9rem;">${usuario.email}</p>
+                                    <span class="badge-fidelidade">⭐ Nível Geek Silver</span>
+                                </div>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid #2b2b3d; margin: 20px 0 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Pontos acumulados:</span>
+                                <strong style="color: #6c5ce7; font-size: 1.1rem;">${pontosFidelidade} pts</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD AÇÕES RÁPIDAS -->
+                    <div class="conta-card">
+                        <div>
+                            <h2 style="font-size: 1.1rem; margin: 0;">🚀 Ações Rápidas</h2>
+                            <div class="acoes-lista">
+                                <button class="btn" id="btnContaIrConfig" style="background: #2b2b3d; text-align: left; width: 100%;">⚙️ Configurações & Endereços</button>
+                                <button class="btn" id="btnContaIrCarrinho" style="background: #2b2b3d; text-align: left; width: 100%;">🛒 Ver Meu Carrinho</button>
+                                <button id="btnSair" class="btn" style="background: #ff5252; width: 100%;">🚪 Sair da Conta</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD HISTÓRICO DE PEDIDOS -->
+                    <div class="conta-card conta-card-full">
+                        <div>
+                            <h2 style="font-size: 1.1rem; margin: 0 0 10px;">📦 Histórico de Pedidos</h2>
+                            <div>
+                                ${pedidos.length === 0 ? `
+                                    <p style="color: #a0a3c4; margin-top: 10px;">Você ainda não realizou nenhum pedido.</p>
+                                ` : pedidos.map(p => `
+                                    <div class="pedido-item">
+                                        <div>
+                                            <strong>#${p.id}</strong> - <small style="color: #a0a3c4;">${p.data}</small>
+                                            <div style="font-size: 0.85rem; color: #a0a3c4; margin-top: 2px;">
+                                                ${p.totalItens} item(ns) | Total: R$ ${Number(p.valorTotal).toFixed(2).replace('.', ',')}
+                                            </div>
+                                        </div>
+                                        <span class="status-tag status-entregue">${p.status || 'Concluído'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
+
         document.getElementById('btnSair')?.addEventListener('click', fazerLogout);
+        document.getElementById('btnContaIrConfig')?.addEventListener('click', () => navegaPara('configuracoes'));
+        document.getElementById('btnContaIrCarrinho')?.addEventListener('click', () => navegaPara('carrinho'));
         return;
     }
 
+    // -------------------------------------------------------------
+    // VISÃO 2: USUÁRIO NÃO LOGADO (LOGIN / CADASTRO)
+    // -------------------------------------------------------------
     const isLogin = estado.modoAutenticacao === 'login';
 
     container.innerHTML = `
-        <div class="cadastro-wrapper">
-            <div class="cadastro-box">
+        <div class="cadastro-wrapper" style="max-width: 450px; margin: 0 auto; padding: 20px;">
+            <div class="cadastro-box" style="background: var(--bg-card, #1e1e2d); padding: 30px; border-radius: 12px; border: 1px solid #2b2b3d;">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
-                    <button type="button" id="tabLogin" class="btn" style="background: ${isLogin ? 'var(--purple-main, #6c5ce7)' : 'transparent'}">Login</button>
-                    <button type="button" id="tabCadastro" class="btn" style="background: ${!isLogin ? 'var(--purple-main, #6c5ce7)' : 'transparent'}">Cadastrar</button>
+                    <button type="button" id="tabLogin" class="btn" style="background: ${isLogin ? '#6c5ce7' : 'transparent'}; border: 1px solid #6c5ce7; flex: 1;">Login</button>
+                    <button type="button" id="tabCadastro" class="btn" style="background: ${!isLogin ? '#6c5ce7' : 'transparent'}; border: 1px solid #6c5ce7; flex: 1;">Cadastrar</button>
                 </div>
 
-                <h1>${isLogin ? 'Acessar Conta' : 'Crie sua Conta'}</h1>
+                <h1 style="font-size: 1.5rem; text-align: center; margin-bottom: 20px;">${isLogin ? 'Acessar Conta' : 'Crie sua Conta'}</h1>
 
                 <form id="authForm">
                     ${!isLogin ? `
-                        <div class="campo">
-                            <label for="nome">Nome Completo</label>
-                            <input type="text" id="nome" placeholder="Digite seu nome" required>
+                        <div class="campo" style="margin-bottom: 15px;">
+                            <label for="nome" style="display: block; margin-bottom: 5px;">Nome Completo</label>
+                            <input type="text" id="nome" placeholder="Digite seu nome" required style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b3d; color: #fff; border: 1px solid #3f3f5a;">
                         </div>
                     ` : ''}
 
-                    <div class="campo">
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+                    <div class="campo" style="margin-bottom: 15px;">
+                        <label for="email" style="display: block; margin-bottom: 5px;">E-mail</label>
+                        <input type="email" id="email" placeholder="seuemail@exemplo.com" required style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b3d; color: #fff; border: 1px solid #3f3f5a;">
                     </div>
 
-                    <div class="campo">
-                        <label for="senha">Senha</label>
-                        <input type="password" id="senha" placeholder="••••••••" required minlength="6">
+                    <div class="campo" style="margin-bottom: 15px;">
+                        <label for="senha" style="display: block; margin-bottom: 5px;">Senha</label>
+                        <input type="password" id="senha" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b3d; color: #fff; border: 1px solid #3f3f5a;">
                     </div>
 
                     ${!isLogin ? `
-                        <div class="campo">
-                            <label for="confirmarSenha">Confirmar Senha</label>
-                            <input type="password" id="confirmarSenha" placeholder="••••••••" required>
+                        <div class="campo" style="margin-bottom: 15px;">
+                            <label for="confirmarSenha" style="display: block; margin-bottom: 5px;">Confirmar Senha</label>
+                            <input type="password" id="confirmarSenha" placeholder="••••••••" required style="width: 100%; padding: 10px; border-radius: 6px; background: #2b2b3d; color: #fff; border: 1px solid #3f3f5a;">
                         </div>
                     ` : ''}
 
-                    <button type="submit" class="btn" style="width: 100%; margin-top: 15px;">
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 15px; padding: 12px; background: #6c5ce7; font-weight: bold;">
                         ${isLogin ? 'Entrar' : 'Cadastrar'}
                     </button>
                 </form>
@@ -696,69 +814,195 @@ function renderCadastro(container) {
     });
 }
 
+// ==========================================
+// CONFIGURAÇÕES EXPANDIDAS COM ACESSIBILIDADE E PAGAMENTO
+// ==========================================
+function getConfiguracoes() {
+    return JSON.parse(localStorage.getItem("config_hub")) || {
+        tema: 'dark',
+        notificacoesToast: true,
+        notificacoesEmail: true,
+        fonteGrande: false,
+        moeda: 'BRL',
+        cepPadrao: '',
+        enderecoPadrao: '',
+        metodoPagamento: 'pix'
+    };
+}
+
+function salvarConfiguracoes(config) {
+    localStorage.setItem("config_hub", JSON.stringify(config));
+    aplicarTema(config.tema);
+    aplicarAcessibilidade(config.fonteGrande);
+}
+
+function aplicarAcessibilidade(fonteGrande) {
+    if (fonteGrande) {
+        document.documentElement.style.fontSize = '18px';
+    } else {
+        document.documentElement.style.fontSize = '16px';
+    }
+}
+
 function renderConfiguracoes(container) {
     const usuario = getUsuarioLogado();
     const config = getConfiguracoes();
 
     container.innerHTML = `
-        <div class="config-wrapper">
-            <div class="config-box">
-                <h1>⚙️ Configurações</h1>
-                <div class="config-secao">
-                    <h2>Preferências do Site</h2>
-                    <div class="campo-config">
-                        <label for="selectTema">Tema de Visualização</label>
-                        <select id="selectTema">
-                            <option value="dark" ${config.tema === 'dark' ? 'selected' : ''}>🌙 Modo Escuro</option>
-                            <option value="light" ${config.tema === 'light' ? 'selected' : ''}>☀️ Modo Claro</option>
-                        </select>
+        <div class="config-wrapper" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+            <h1>⚙️ Painel de Configurações</h1>
+            
+            <div class="config-grid">
+                <!-- CARD 1: APARÊNCIA & ACESSIBILIDADE -->
+                <div class="config-card">
+                    <div>
+                        <h2>🎨 Aparência & Acessibilidade</h2>
+                        <div class="config-form-group">
+                            <label for="selectTema">Tema Visual</label>
+                            <select id="selectTema">
+                                <option value="dark" ${config.tema === 'dark' ? 'selected' : ''}>🌙 Modo Escuro</option>
+                                <option value="light" ${config.tema === 'light' ? 'selected' : ''}>☀️ Modo Claro</option>
+                            </select>
+                        </div>
+                        <div class="campo-checkbox" style="margin-bottom: 10px;">
+                            <input type="checkbox" id="chkToast" ${config.notificacoesToast ? 'checked' : ''}>
+                            <label for="chkToast">Exibir notificações flutuantes</label>
+                        </div>
+                        <div class="campo-checkbox">
+                            <input type="checkbox" id="chkFonte" ${config.fonteGrande ? 'checked' : ''}>
+                            <label for="chkFonte">Aumentar fonte (Acessibilidade)</label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="config-secao" style="margin-top: 25px;">
-                    <h2>Dados da Conta</h2>
-                    ${usuario ? `
-                        <form id="formAtualizarConta">
-                            <div class="campo">
-                                <label for="configNome">Nome Completo</label>
-                                <input type="text" id="configNome" value="${usuario.nome}" required>
-                            </div>
-                            <div class="campo">
-                                <label for="configEmail">E-mail</label>
-                                <input type="email" id="configEmail" value="${usuario.email}" required>
-                            </div>
-                            <button type="submit" class="btn" style="margin-top: 15px;">Salvar Alterações</button>
-                        </form>
-                    ` : `
-                        <p style="color: var(--text-secondary);">Você não está conectado.</p>
-                        <button class="btn" id="btnIrLoginConfig">Entrar na Conta</button>
-                    `}
+                <!-- CARD 2: COMUNICAÇÃO -->
+                <div class="config-card">
+                    <div>
+                        <h2>🔔 Notificações</h2>
+                        <div class="campo-checkbox">
+                            <input type="checkbox" id="chkEmail" ${config.notificacoesEmail ? 'checked' : ''}>
+                            <label for="chkEmail">Receber novidades e cupons por e-mail</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: PAGAMENTO E ENTREGA -->
+                <div class="config-card">
+                    <form id="formPreferenciasCompra">
+                        <h2>💳 Pagamento & Entrega</h2>
+                        <div class="config-form-group">
+                            <label for="configCep">CEP Padrão</label>
+                            <input type="text" id="configCep" value="${config.cepPadrao || ''}" placeholder="00000-000" maxlength="9">
+                        </div>
+                        <div class="config-form-group">
+                            <label for="configEndereco">Endereço de Entrega</label>
+                            <input type="text" id="configEndereco" value="${config.enderecoPadrao || ''}" placeholder="Rua, Nº, Bairro">
+                        </div>
+                        <div class="config-form-group">
+                            <label for="selectPagamento">Pagamento Preferido</label>
+                            <select id="selectPagamento">
+                                <option value="pix" ${config.metodoPagamento === 'pix' ? 'selected' : ''}>⚡ PIX</option>
+                                <option value="cartao" ${config.metodoPagamento === 'cartao' ? 'selected' : ''}>💳 Cartão de Crédito</option>
+                                <option value="boleto" ${config.metodoPagamento === 'boleto' ? 'selected' : ''}>📄 Boleto</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Salvar Preferências</button>
+                    </form>
+                </div>
+
+                <!-- CARD 4: PERFIL -->
+                <div class="config-card">
+                    <div>
+                        <h2>👤 Perfil e Segurança</h2>
+                        ${usuario ? `
+                            <form id="formAtualizarPerfil" class="config-form-group">
+                                <div>
+                                    <label for="configNome">Nome de Exibição</label>
+                                    <input type="text" id="configNome" value="${usuario.nome}" required>
+                                </div>
+                                <div>
+                                    <label for="configEmail">E-mail</label>
+                                    <input type="email" id="configEmail" value="${usuario.email}" required>
+                                </div>
+                                <div>
+                                    <label for="configNovaSenha">Nova Senha</label>
+                                    <input type="password" id="configNovaSenha" placeholder="Digite para alterar">
+                                </div>
+                                <button type="submit" class="btn">Atualizar Perfil</button>
+                            </form>
+                        ` : `
+                            <p style="color: #a0a3c4; margin-bottom: 15px;">Conecte-se para alterar dados do perfil.</p>
+                            <button class="btn" id="btnIrLoginConfig">Entrar</button>
+                        `}
+                    </div>
+                </div>
+
+                <!-- CARD 5: ZONA DE PERIGO (LARGURA TOTAL) -->
+                <div class="config-card config-card-danger">
+                    <h2>⚠️ Zona de Perigo</h2>
+                    <p style="color: #a0a3c4; margin-bottom: 15px;">Restaura as configurações originais e apaga todos os dados locais salvos.</p>
+                    <button type="button" id="btnResetarDados" class="btn" style="background: #ff5252; width: max-content;">Restaurar Padrões</button>
                 </div>
             </div>
         </div>
     `;
 
+    // Eventos
     document.getElementById('selectTema')?.addEventListener('change', (e) => {
         config.tema = e.target.value;
         salvarConfiguracoes(config);
+        exibirToast(`Tema alterado para ${config.tema === 'dark' ? 'Modo Escuro' : 'Modo Claro'}`);
     });
 
-    document.getElementById('formAtualizarConta')?.addEventListener('submit', (e) => {
+    document.getElementById('chkToast')?.addEventListener('change', (e) => {
+        config.notificacoesToast = e.target.checked;
+        salvarConfiguracoes(config);
+    });
+
+    document.getElementById('chkFonte')?.addEventListener('change', (e) => {
+        config.fonteGrande = e.target.checked;
+        salvarConfiguracoes(config);
+    });
+
+    document.getElementById('chkEmail')?.addEventListener('change', (e) => {
+        config.notificacoesEmail = e.target.checked;
+        salvarConfiguracoes(config);
+    });
+
+    document.getElementById('formPreferenciasCompra')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const novoNome = document.getElementById('configNome').value.trim();
-        const novoEmail = document.getElementById('configEmail').value.trim();
-        salvarUsuario({ nome: novoNome, email: novoEmail });
-        exibirToast('Dados atualizados com sucesso!');
+        config.cepPadrao = document.getElementById('configCep').value.trim();
+        config.enderecoPadrao = document.getElementById('configEndereco').value.trim();
+        config.metodoPagamento = document.getElementById('selectPagamento').value;
+        salvarConfiguracoes(config);
+        exibirToast('Preferências salvas!');
+    });
+
+    document.getElementById('formAtualizarPerfil')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        salvarUsuario({
+            nome: document.getElementById('configNome').value.trim(),
+            email: document.getElementById('configEmail').value.trim()
+        });
+        exibirToast('Perfil atualizado!');
         render();
     });
 
     document.getElementById('btnIrLoginConfig')?.addEventListener('click', () => navegaPara('cadastro'));
+
+    document.getElementById('btnResetarDados')?.addEventListener('click', () => {
+        if (confirm('Tem certeza de que deseja apagar todos os dados salvos?')) {
+            localStorage.clear();
+            location.reload();
+        }
+    });
 }
 
 // ==========================================
 // 10. INICIALIZAÇÃO DA APLICAÇÃO
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    aplicarAcessibilidade(getConfiguracoes().fonteGrande);
     aplicarTema(getConfiguracoes().tema);
     atualizarUIHeader();
 

@@ -27,18 +27,22 @@
             </a>
         </div>
 
-        <div class="header-actions">
-            <button class="btn" id="btnIrCarrinho">
-                🛒 <span>Carrinho</span>
-                <span id="cartCountBadge" class="badge">0</span>
-            </button>
-            <button class="letra_botao_cadas" id="btnIrCadastro" title="Cadastro / Login">
-                <span class="icon">👤</span>
-            </button>
-            <button class="letra_botao_cadas" id="btnIrConfig" title="Configurações">
-                <span class="icon">⚙️</span>
-            </button>
-        </div>
+            <div class="header-actions">
+        <!-- CAMPO DE BUSCA (Apoiado pelo script) -->
+        <input type="text" id="inputBusca" placeholder="Pesquisar produto..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color, #333); background: var(--bg-card, #1e1e2d); color: #fff;">
+
+        <button class="btn" id="btnIrCarrinho">
+            🛒 <span>Carrinho</span>
+            <span id="cartCountBadge" class="badge">0</span>
+        </button>
+        <button class="letra_botao_cadas" id="btnIrCadastro" title="Cadastro / Login">
+            <span class="icon">👤</span>
+        </button>
+        <button class="letra_botao_cadas" id="btnIrConfig" title="Configurações">
+            <span class="icon">⚙️</span>
+        </button>
+    </div>
+
     </header>
 
     <div class="container">

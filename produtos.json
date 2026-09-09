@@ -261,10 +261,10 @@
   },
   {
     "id": 29,
-    "nome": "Invencível #1: Negócios de Família",
-    "preco": 19.9,
-    "imagem": "imagens/invencível.jpeg",
-    "categoria": "hq",
+    "nome": "Core Keeper",
+    "preco": 189.97,
+    "imagem": "imagens/corekeeper.jfif",
+    "categoria": "games",
     "estoque": 5,
     "destaque": false
   },
